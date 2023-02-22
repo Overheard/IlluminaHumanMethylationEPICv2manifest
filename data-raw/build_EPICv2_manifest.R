@@ -24,9 +24,9 @@ library(devtools)
 rm(list=ls())
 gc()
 
-file <- "EPIC-8v2-0_A1.csv"
+file <- "EPIC-8v2-0_EA.csv"
 
-e1 <- vroom(file)
+e1 <- vroom(file.path("Z:/Gagri_Cancer-Epigenetics/Projects/EPIC_V2",file))
 
 control.line <- grep("Controls",e1$Illumina)+1
 assay.line <- grep("\\[Assay",e1$Illumina)+1
@@ -45,7 +45,6 @@ manifest <- vroom(file,skip=assay.line,n_max =control.line-assay.line-2)
 
 manifest <- manifest[-which(manifest$IlmnID %in% c("cg12434587_BO11","cg12981137_BO11","cg12981137_TC21","cg12981137_BC21")),]
 
-manifest <- manifest[-which(duplicated(manifest$Name)),]
 
 manifest$AddressA_ID <- gsub("^0*", "", manifest$AddressA_ID)
 manifest$AddressB_ID <- gsub("^0*", "", manifest$AddressB_ID)
@@ -109,7 +108,7 @@ maniTmp <- list(
 # checks
 manifest <- maniTmp$manifest
 
-epic <- readIDAT("./206891110005/206891110005_R02C01_Grn.idat")
+epic <- readIDAT("Z:/Gagri_Cancer-Epigenetics-Data/EPIC_Level_1/EPIC_V2_Trial/V2/idats/206909630026_R01C01_Grn.idat")
 
 address.epic <- as.character(epic$MidBlock)
 
