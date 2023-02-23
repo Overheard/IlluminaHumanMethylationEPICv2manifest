@@ -26,7 +26,7 @@ gc()
 
 file <- "EPIC-8v2-0_EA.csv"
 
-e1 <- vroom(file.path("Z:/Gagri_Cancer-Epigenetics/Projects/EPIC_V2",file))
+e1 <- vroom(file.path("Z:/Gagri_Cancer-Epigenetics/Projects/EPIC_V2/",file))
 
 control.line <- grep("Controls",e1$Illumina)+1
 assay.line <- grep("\\[Assay",e1$Illumina)+1
@@ -34,7 +34,7 @@ assay.line <- grep("\\[Assay",e1$Illumina)+1
 rm(e1)
 gc()
 
-manifest <- vroom(file,skip=assay.line,n_max =control.line-assay.line-2) 
+manifest <- vroom(file.path("Z:/Gagri_Cancer-Epigenetics/Projects/EPIC_V2/",file),skip=assay.line,n_max =control.line-assay.line-2) 
 
 #manifest[which(manifest$Name=="cg12981137"),"AlleleA_ProbeSeq"]
 #manifest[which(manifest$Name=="cg12981137"),"Infinium_Design"]
@@ -53,10 +53,10 @@ manifest$AddressA_ID[is.na(manifest$AddressA_ID)] <- ""
 manifest$AddressB_ID[is.na(manifest$AddressB_ID)] <- ""
 
 TypeI <- manifest[manifest$Infinium_Design_Type == "I",
-                  c("Name", "AddressA_ID", "AddressB_ID", "Color_Channel", "Next_Base",
+                  c("IlmnID", "AddressA_ID", "AddressB_ID", "Color_Channel", "Next_Base",
                     "AlleleA_ProbeSeq", "AlleleB_ProbeSeq")]
 
-names(TypeI)[c(2, 3, 4, 5, 6, 7)] <- c("AddressA", "AddressB", "Color", "NextBase", "ProbeSeqA", "ProbeSeqB")
+names(TypeI)[c(1,2, 3, 4, 5, 6, 7)] <- c("Name", "AddressA", "AddressB", "Color", "NextBase", "ProbeSeqA", "ProbeSeqB")
 
 TypeI <- as(TypeI, "DataFrame")
 TypeI$ProbeSeqA <- DNAStringSet(TypeI$ProbeSeqA)
@@ -71,8 +71,8 @@ TypeI <- TypeI[-grep("^nv", TypeI$Name), ]
 
 TypeII <- manifest[
   manifest$Infinium_Design_Type == "II",
-  c("Name", "AddressA_ID", "AlleleA_ProbeSeq")]
-names(TypeII)[c(2,3)] <- c("AddressA", "ProbeSeqA")
+  c("IlmnID", "AddressA_ID", "AlleleA_ProbeSeq")]
+names(TypeII)[c(1,2,3)] <- c("Name","AddressA", "ProbeSeqA")
 TypeII <- as(TypeII, "DataFrame")
 TypeII$ProbeSeqA <- DNAStringSet(TypeII$ProbeSeqA)
 TypeII$nCpG <- as.integer(letterFrequency(TypeII$ProbeSeqA, letters = "R"))
@@ -82,7 +82,7 @@ TypeII <- TypeII[-grep("^rs", TypeII$Name), ]
 TypeII <- TypeII[-grep("^nv", TypeII$Name), ]
 
 controls <- read.table(
-  file = file,
+  file = file.path("Z:/Gagri_Cancer-Epigenetics/Projects/EPIC_V2/",file),
   skip = control.line,
   sep = ",",
   comment.char = "",
@@ -112,10 +112,10 @@ epic <- readIDAT("Z:/Gagri_Cancer-Epigenetics-Data/EPIC_Level_1/EPIC_V2_Trial/V2
 
 address.epic <- as.character(epic$MidBlock)
 
-dropCpGs <- manifest$Name[manifest$AddressB_ID != "" & !manifest$AddressB_ID %in% address.epic]
+dropCpGs <- manifest$IlmnID[manifest$AddressB_ID != "" & !manifest$AddressB_ID %in% address.epic]
 table(substr(dropCpGs, 1,2))
 
-dropCpGs <- manifest$Name[manifest$AddressA_ID != "" & !manifest$AddressA_ID %in% address.epic]
+dropCpGs <- manifest$IlmnID[manifest$AddressA_ID != "" & !manifest$AddressA_ID %in% address.epic]
 table(substr(dropCpGs, 1,2))
 
 ## Controls ok
